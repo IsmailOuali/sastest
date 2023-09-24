@@ -2,7 +2,7 @@
 #include<string.h>
 #include<time.h>
 
-int i, j, n, tacheid =1, searchid = 0;
+int  j, n, tacheid =1, searchid = 0;
 int size = 0;
 char choice;
 char choice2;
@@ -20,7 +20,7 @@ typedef struct
     int status;
 }tache;
 tache t[100];
-
+tache tab[100];
 
 void displaymenu()
 {
@@ -50,17 +50,16 @@ void displaytask(tache t[100], int i)
     printf("%d ) Titre: %s, Description: %s, Deadline: %d Statut(%s)\n", t[i].id, t[i].titre, t[i].description, t[i].deadline, statut);
 
 }
-void addtask(tache t[100], int i)
+void addtask(tache t[100])
 {
-    for (i = 0; i < n; i++)
+    for (int i = 0; i < n; i++)
     {
         tache temp;
         temp.id=size+1;
         printf("Entrer le titre de la tache: ");
-        getchar();
-        gets(temp.titre);
+        scanf(" %99[^\n]", &temp.titre);
         printf("Entrer la description de la tache: ");
-        gets(temp.description);
+        scanf(" %99[^\n]", &temp.description);
         printf("Entrer le deadline de la tache en jrs: ");
         scanf("%d", &temp.deadline);
         printf("Entrer le status de tache\n1=> A realiser\t 2=> En cours de realiser\t 3=> Done  ");
@@ -81,7 +80,7 @@ void displaysortmenu()
 
 }
 void sortalpha(tache t[100]){
-    for ( i = 0; i < size; i++)
+    for (int i = 0; i < size; i++)
     {
         for (j = 0; j < size - 1; j++)
         {
@@ -99,13 +98,6 @@ void sortalpha(tache t[100]){
     printf("Les taches sont trier on alphabetic");
 }
 
-void updatemenu()
-{
-    printf("1) Modifier la description\n");
-    printf("2) Modifier le statut\n");
-    printf("3) Modifier le deadline\n");
-}
-
 void updatesumenu()
 {
     printf("-*-*-*-*-( Menu de modification)-*-*-*-*-\n");
@@ -115,34 +107,63 @@ void updatesumenu()
     scanf(" %c", &updatechoice);
 }
 
-void updatedes(int id, char des[])
+void updatedes(tache tab[100], int id)
 {
-    /*scanf(" %s", &t[searchid].description);
-    strcpy(s, t[id].description);
-    //printf("%s", &t[searchid].description);
-    printf("\nUpdate succesed\n");
-    printf("[%d]", t[searchid].id);*/
     int found = 0;
-    for (i = 0; i < size; i++) {
-        if ( t[i].id == id) {
-            strcpy(t[i].description, des);
-            found = 1;
-            break;
+    int i;
+    int ap;
+    for (i = 0; i < size; i++) 
+    {
+        ap = tab[i].id;
+        if (ap == id)
+        {
+            scanf(" %99[^\n]", &tab[i].description);
+            found = 1; // Task found and updated
+            break;   // No need to continue the loop once found
         }
+    }
+
+    if (found == 1) 
+    {
+        printf("Description Update\n");
+    }
+    else
+    {
+        printf("Not found\t id = %d\n", ap);
     }
 }
 
-void updatestat()
+
+void updatestat(tache tab[100], int id)
 {
     printf("Entrer le nouveau statut\n 1=> A realiser\t 2=> En cours\t 3=> finalise\n");
-    scanf("%d", &j);
-    t[searchid].status = j;
+    int found = 0;
+    int i;
+    int ap;
+    for (i = 0; i < size; i++) 
+    {
+        ap = tab[i].id;
+        if (ap == id)
+        {
+            scanf(" %d", &tab[i].status);
+            found = 1; // Task found and updated
+            break;   // No need to continue the loop once found
+        }
+    }
+
+    if (found == 1) 
+    {
+        printf("Status Updated\n");
+    }
+    else
+    {
+        printf("Not found\t id = %d\n", ap);
+    }
 }
 
 
 int main()
 {
-    tache task[100];
     
     do
     {   displaymenu();
@@ -153,14 +174,14 @@ int main()
 
                 printf("Entrer le nombre de tache que voulez ajoute: ");
                 scanf("%d", &n);
-                addtask(task, i);
+                addtask(t);
                 break;
                 
             case '2': // Afficher les taches
 
-                for ( i = 0; i < size; i++)
+                for (int i = 0; i <size; i++)
                 {
-                    displaytask(task, i);
+                    displaytask(t, i);
                 }
                 break;
             
@@ -169,7 +190,7 @@ int main()
                 switch (choice2)
                 {
                     case '1':
-                        sortalpha(task);
+                        sortalpha(t);
                         break;
                     case '4':
                         displaymenu();
@@ -179,23 +200,18 @@ int main()
                         break;
                 }
             case '4': // Modifier les taches
-                //updatemenu();
-                updatesumenu();
-                printf("Choisissez l id du tache \n");
-                scanf("%d", &searchid);
+                 updatesumenu();
+                 printf("Choisissez l id du tache \n");
+                 scanf("%d", &searchid);
                 switch (updatechoice)
                 {
                     case '1':
                         printf("Changer la description de l'element [%d] \n", searchid);
-                        printf("Entrer la nouvelle description: \n");
-                        getchar();
-                        gets(s);
-                        updatedes(searchid, s);
+                        updatedes(t, searchid);
                         break;
                     case '2':
                         printf("Changer le statut de l'element [%d] \n", searchid);
-                        updatestat();
-                        printf("[%s]", t[searchid]);
+                        updatestat(t, searchid);
                         break;
                 
                     default:
