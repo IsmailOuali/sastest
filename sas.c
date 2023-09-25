@@ -227,7 +227,7 @@ void deletetask()
         {
             for (j = i; j < size - 1; j++) 
             {
-                if (t[i].status == 1 && t[i].status ==2)
+                /*if (t[i].status == 1 && t[i].status == 2)
                 {
                     inctask--;
                     tasknb--;
@@ -236,7 +236,7 @@ void deletetask()
                 {
                     ctask--;
                     tasknb--;
-                } 
+                } */
                 t[j] = t[j + 1];
             }
             size--;
