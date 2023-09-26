@@ -1,15 +1,15 @@
 #include<stdio.h>
 #include<string.h>
-#include<time.h>
 
 int  j, n, tacheid =1, searchid = 0, verify;
 int size = 0;
 char choice;
-char choice2, statchoice;
+char choice2, statchoice, searchchoice;
 char updatechoice;
 char statut[20];
 char s[100];
 int tasknb = 0, ctask = 0, inctask= 0;
+int nbdays, remainingdays;
 
 typedef struct 
 {
@@ -18,6 +18,7 @@ typedef struct
     int year;
 }dead;
 
+dead current;
 typedef struct
 {
     int id;
@@ -25,6 +26,7 @@ typedef struct
     char description[100];
     dead deadline;
     int status;
+    int deadlinedays;
 }tache;
 tache t[100];
 tache tab[100];
@@ -44,6 +46,7 @@ void displaymenu()
     printf("\n#. Quitter\n");
     scanf(" %c", &choice);
 }
+
 void displaytask(tache t[100], int i)
 {
     if (t[i].status == 1)
@@ -61,8 +64,10 @@ void displaytask(tache t[100], int i)
         ctask++;
     }
     printf("ID[%d] Titre: %s | Description: %s | Deadline: %d/%d/%d | Statut(%s)\n", t[i].id, t[i].titre, t[i].description, t[i].deadline.day, t[i].deadline.mounth, t[i].deadline.year, statut);
+    t[i].deadlinedays = (t[i].deadline.day + t[i].deadline.mounth*30 + t[i].deadline.year*365);
 
 }
+
 void addtask(tache t[100])
 {
     for (int i = 0; i < n; i++)
@@ -79,7 +84,6 @@ void addtask(tache t[100])
         scanf("%d", &temp.status);
         t[size]=temp;
         size++;
-        tasknb++;
        }
 }
 void displaysortmenu()
@@ -87,7 +91,7 @@ void displaysortmenu()
     printf("\t\t_-_-_-_- Sort Menu _-_-_-_-\n");
     printf("\n \t\t1) Trier par alphabetic");
     printf("\n \t\t2) Trier par deadline");
-    printf("\n \t\t3) Afficher  deadline");
+    printf("\n \t\t3) Afficher  deadline moins de trois jours");
     printf("\n \t\t4) Retourner au menu principal");
     printf("\n \t\t#) Quitter\n");
     scanf(" %c", &choice2);
@@ -109,7 +113,7 @@ void sortalpha(tache t[100]){
             
         }
     }
-    printf("Les taches sont trier on alphabetic");
+    printf("Les taches sont trier on alphabetic\n");
 }
 
 void sortdeadline(tache t[100])
@@ -145,7 +149,23 @@ void sortdeadline(tache t[100])
     } 
     printf("Les taches sont trier on deadline\n");
 }
-            
+
+int remaindays(tache t)
+{
+    nbdays = (current.day + current.mounth*30 + current.year*365);
+    remainingdays = t.deadlinedays - nbdays;
+    return remainingdays;
+}
+void displaythreedays()
+{
+    for (int i = 0; i < size; i++)
+    {
+        if (remaindays(t[i]) <= 3)
+        {
+            printf("ID[%d] Titre: %s | Description: %s | Deadline: %d/%d/%d | Statut(%s)\n", t[i].id, t[i].titre, t[i].description, t[i].deadline.day, t[i].deadline.mounth, t[i].deadline.year, statut);
+        }
+    }
+}
 
 void updatesumenu()
 {
@@ -223,20 +243,10 @@ void deletetask()
 
     for (i = 0; i < size; i++) 
     {
-        if (x == t[i].id) 
+        if (x == t[i].id)
         {
             for (j = i; j < size - 1; j++) 
             {
-                /*if (t[i].status == 1 && t[i].status == 2)
-                {
-                    inctask--;
-                    tasknb--;
-                }
-                else if (t[i].status == 3)
-                {
-                    ctask--;
-                    tasknb--;
-                } */
                 t[j] = t[j + 1];
             }
             size--;
@@ -250,16 +260,116 @@ void deletetask()
     }
 }
 
-void statmenu()
-{
-    printf("\t\t|||||||||||||||| Statistique ||||||||||||||||\n");
-    printf("\t\t1) Afficher le nombre total des taches\n");
-    printf("\t\t2) Afficher le nombre total des taches complete et incomplete\n");
-    printf("\t\t3) Afficher les jours restants pour chaque tache\n");
+void searchbyid(){
+    int id;
+    printf("Entrer l'ID du tache:");
+    scanf("%d",&id);
+    for(int i = 0; i < size; i++)
+    {
+            if(t[i].id == id)
+            {
+                printf("\nVous avez chercher :\n");
+                printf("\nID : %d",t[i].id);
+                printf("\nTitre :%s",t[i].titre);
+                printf("\nDescrption :%s",t[i].description);
+                printf("\nDeadline :%d/%d/%d",t[i].deadline.day,t[i].deadline.mounth,t[i].deadline.year);
+                if (t[i].status == 1)
+                {
+                    strcpy(statut, "A realiser");
+                }
+                else if(t[i].status == 2)
+                {
+                    strcpy(statut, "En cours");
+                }
+                else
+                {
+                    strcpy(statut, "Finalise");
+                }
+                printf("\nStatut :%s\n",statut);
+            }
+    }
+
 }
 
+void searchbytitle() {
+    int i;
+    char stitle[100];
+    printf("Entrer le titre de votre tache :");
+    scanf("%s", stitle);
+
+    for (i = 0; i < size; i++) {
+        if (strcmp(t[i].titre, stitle) == 0) 
+        {
+            printf("vous avez chercher :");
+            printf("\nID : %d",t[i].id);
+            printf("\nTitre :%s",t[i].titre);
+            printf("\nDescrption :%s",t[i].description);
+            printf("\nDeadline :%d/%d/%d",t[i].deadline.day,t[i].deadline.mounth,t[i].deadline.year);
+            if (t[i].status == 1)
+                {
+                    strcpy(statut, "A realiser");
+                }
+                else if(t[i].status == 2)
+                {
+                    strcpy(statut, "En cours");
+                }
+                else
+                {
+                    strcpy(statut, "Finalise");
+                }
+                    printf("\nStatut :%s\n",statut);
+        }
+
+
+                }
+            printf("\nStatut :%d\n",t[i].status);
+}
+
+
+void searchmenu()
+{
+    printf("\t\t\t\t********* Menu de recherche *********\n");
+    printf("\t\t\t\t  1) Rechercher par ID\n");
+    printf("\t\t\t\t  2) Rechercher par titre\n");
+    printf("\t\t\t\t  3) Retour au menu principal\n");
+}
+
+void statmenu()
+{
+    printf("\t\t\t\t|||||||||||||||| Statistique ||||||||||||||||\n");
+    printf("\t\t\t\t1) Afficher le nombre total des taches\n");
+    printf("\t\t\t\t2) Afficher le nombre total des taches complete et incomplete\n");
+    printf("\t\t\t\t3) Afficher les jours restants pour chaque tache\n");
+    printf("\t\t\t\t4) Retourner vers le menu principal\n");
+}
+
+void displayremin(tache t[100])
+{
+    for (int i = 0; i < size; i++)
+    {
+    
+        if (t[i].status == 1)
+        {
+            strcpy(statut, "A realiser");
+        }
+        else if(t[i].status == 2)
+        {
+            strcpy(statut, "En cours");
+        }
+        else{
+            strcpy(statut, "Finalise");
+        }
+        t[i].deadlinedays = (t[i].deadline.day + t[i].deadline.mounth*30 + t[i].deadline.year*365);
+        remaindays(t[i]);
+        printf("ID[%d] Titre: %s | Description: %s | Deadline: %d/%d/%d | Statut(%s) |  Jours restant [%d]Jours\n", t[i].id, t[i].titre, t[i].description, t[i].deadline.day, t[i].deadline.mounth, t[i].deadline.year, statut, remaindays(t[i]));
+    }
+    
+
+}
 int main()
 {
+    printf("Veuillez entrer la date d'aujourdhui (JJ/MM/YYYY):  ");
+    scanf("%d/%d/%d", &current.day, &current.mounth, &current.year);
     
     do
     {   displaymenu();
@@ -291,6 +401,8 @@ int main()
                     case '2':
                         sortdeadline(t);
                         break;
+                    case '3':
+                        displaythreedays(t);
                     case '4':
                         displaymenu();
                         break;
@@ -317,7 +429,9 @@ int main()
                         if (verify ==1)
                             updatestat(t, searchid);
                         break;
-                
+                    case '3':
+                        displaymenu();
+                        break;
                     default:
                         break;
                 }
@@ -326,18 +440,38 @@ int main()
             case '5': // Supprimer les taches
                 deletetask();
                 break;
-            case '7':
+            case '6': // Chercher les taches
+                searchmenu();
+                scanf(" %c", &searchchoice);
+                switch (searchchoice)
+                {
+                case '1':
+                    searchbyid();
+                    break;
+                case '2':
+                    searchbytitle();
+                case '3':
+                    displaymenu();
+                    break;
+                default:
+                    break;
+                }
+                break;
+            case '7': // Statistique
                 statmenu();
                 scanf(" %c", &statchoice);
                 switch (statchoice)
                 {
                     case '1':
-                        printf("le nombre total des taches est: %d\n", tasknb);
+                        printf("le nombre total des taches est: %d\n", size);
                         break;
                     case '2':
                         printf("le nombre total des taches complete est: %d\nle nombre total des taches incomplete est: %d\n", ctask, inctask);
                         break;
-                
+                    case '3':
+                        displayremin(t);
+                    case '4':
+                        displaymenu();
                     default:
                         break;
                 }
